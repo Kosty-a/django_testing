@@ -30,8 +30,9 @@ def test_comments_order(client, detail_url_content):
     response = client.get(detail_url_content)
     assert 'news' in response.context
     news = response.context['news']
-    all_comments = news.comment_set.all()
-    assert all_comments[0].created < all_comments[1].created
+    all_comments = news.comment_set.values('created')
+    all_comments_created = [comment['created'] for comment in all_comments]
+    assert all_comments_created == sorted(all_comments_created)
 
 
 @pytest.mark.django_db

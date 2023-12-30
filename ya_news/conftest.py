@@ -8,6 +8,13 @@ from django.utils import timezone
 from news.models import Comment, News
 
 
+NUMBER_OF_COMMENTS = 10
+
+NEWS_DETAIL = 'news:detail'
+NEWS_EDIT = 'news:edit'
+NEWS_DELETE = 'news:delete'
+
+
 @pytest.mark.django_db
 @pytest.fixture
 def news():
@@ -52,7 +59,7 @@ def comment(author, news):
 @pytest.fixture
 def comment_content(news, author):
     now = timezone.now()
-    for index in range(2):
+    for index in range(NUMBER_OF_COMMENTS):
         comment = Comment.objects.create(
             news=news, author=author, text=f'Текст {index}'
         )
@@ -72,7 +79,7 @@ def comment_id_for_args(comment):
 
 @pytest.fixture
 def detail_url_content(news_id_for_args):
-    return reverse('news:detail', args=news_id_for_args)
+    return reverse(NEWS_DETAIL, args=news_id_for_args)
 
 
 @pytest.fixture
@@ -82,12 +89,12 @@ def url_to_comments(detail_url_content):
 
 @pytest.fixture
 def edit_url(comment_id_for_args):
-    return reverse('news:edit', args=comment_id_for_args)
+    return reverse(NEWS_EDIT, args=comment_id_for_args)
 
 
 @pytest.fixture
 def delete_url(comment_id_for_args):
-    return reverse('news:delete', args=comment_id_for_args)
+    return reverse(NEWS_DELETE, args=comment_id_for_args)
 
 
 @pytest.fixture

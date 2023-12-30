@@ -8,6 +8,17 @@ from notes.models import Note
 
 User = get_user_model()
 
+NOTES_HOME = 'notes:home'
+USERS_LOGIN = 'users:login'
+USERS_LOGOUT = 'users:logout'
+USERS_SIGNUP = 'users:signup'
+NOTES_LIST = 'notes:list'
+NOTES_ADD = 'notes:add'
+NOTES_SUCCESS = 'notes:success'
+NOTES_DETAIL = 'notes:detail'
+NOTES_EDIT = 'notes:edit'
+NOTES_DELETE = 'notes:delete'
+
 
 class TestRoutes(TestCase):
 
@@ -23,7 +34,7 @@ class TestRoutes(TestCase):
         )
 
     def test_pages_availability_for_anonymous_user(self):
-        urls = ('notes:home', 'users:login', 'users:logout', 'users:signup')
+        urls = (NOTES_HOME, USERS_LOGIN, USERS_LOGOUT, USERS_SIGNUP)
 
         for name in urls:
             with self.subTest(name=name):
@@ -32,7 +43,7 @@ class TestRoutes(TestCase):
                 self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_pages_availability_for_auth_user(self):
-        urls = ('notes:list', 'notes:add', 'notes:success')
+        urls = (NOTES_LIST, NOTES_ADD, NOTES_SUCCESS)
         self.client.force_login(self.reader)
 
         for name in urls:
@@ -49,7 +60,7 @@ class TestRoutes(TestCase):
 
         for user, status in users_statuses:
             self.client.force_login(user)
-            for name in ('notes:detail', 'notes:edit', 'notes:delete'):
+            for name in (NOTES_DETAIL, NOTES_EDIT, NOTES_DELETE):
                 with self.subTest(user=user, name=name):
                     url = reverse(name, args=(self.note.slug,))
                     response = self.client.get(url)
@@ -57,14 +68,14 @@ class TestRoutes(TestCase):
 
     def test_redirects(self):
         urls = (
-            ('notes:detail', (self.note.slug,)),
-            ('notes:edit', (self.note.slug,)),
-            ('notes:delete', (self.note.slug,)),
-            ('notes:add', None),
-            ('notes:success', None),
-            ('notes:list', None),
+            (NOTES_DETAIL, (self.note.slug,)),
+            (NOTES_EDIT, (self.note.slug,)),
+            (NOTES_DELETE, (self.note.slug,)),
+            (NOTES_ADD, None),
+            (NOTES_SUCCESS, None),
+            (NOTES_LIST, None),
         )
-        login_url = reverse('users:login')
+        login_url = reverse(USERS_LOGIN)
 
         for name, args in urls:
             with self.subTest(name=name):

@@ -6,6 +6,10 @@ from notes.models import Note
 
 User = get_user_model()
 
+NOTES_LIST = 'notes:list'
+NOTES_ADD = 'notes:add'
+NOTES_EDIT = 'notes:edit'
+
 
 class TestContent(TestCase):
 
@@ -25,7 +29,7 @@ class TestContent(TestCase):
             (self.author, True),
             (self.reader, False),
         )
-        url = reverse('notes:list')
+        url = reverse(NOTES_LIST)
 
         for user, note_flag in users_note_flag:
             with self.subTest(user=user):
@@ -36,8 +40,8 @@ class TestContent(TestCase):
 
     def test_pages_contains_form(self):
         urls = (
-            ('notes:add', None),
-            ('notes:edit', (self.note.slug,))
+            (NOTES_ADD, None),
+            (NOTES_EDIT, (self.note.slug,))
         )
         self.client.force_login(self.author)
 

@@ -10,6 +10,12 @@ from notes.models import Note
 
 User = get_user_model()
 
+NOTES_ADD = 'notes:add'
+NOTES_SUCCESS = 'notes:success'
+USERS_LOGIN = 'users:login'
+NOTES_EDIT = 'notes:edit'
+NOTES_DELETE = 'notes:delete'
+
 
 class TestNoteCreation(TestCase):
 
@@ -23,8 +29,8 @@ class TestNoteCreation(TestCase):
             'text': 'Новый текст',
             'slug': 'new-slug'
         }
-        cls.url = reverse('notes:add')
-        cls.success_url = reverse('notes:success')
+        cls.url = reverse(NOTES_ADD)
+        cls.success_url = reverse(NOTES_SUCCESS)
 
     def test_user_can_create_note(self):
         response = self.auth_client.post(self.url, data=self.form_data)
@@ -38,7 +44,7 @@ class TestNoteCreation(TestCase):
 
     def test_anonymous_user_cant_create_note(self):
         response = self.client.post(self.url, data=self.form_data)
-        login_url = reverse('users:login')
+        login_url = reverse(USERS_LOGIN)
         redirect_url = f'{login_url}?next={self.url}'
         self.assertRedirects(response, redirect_url)
         self.assertEqual(Note.objects.count(), 0)
@@ -75,10 +81,10 @@ class TestNoteEditDelete(TestCase):
             'slug': 'new-slug'
         }
         cls.args = (cls.note.slug,)
-        cls.success_url = reverse('notes:success')
+        cls.success_url = reverse(NOTES_SUCCESS)
 
     def test_author_can_edit_note(self):
-        url = reverse('notes:edit', args=self.args)
+        url = reverse(NOTES_EDIT, args=self.args)
         response = self.auth_client.post(url, self.form_data)
         self.assertRedirects(response, self.success_url)
         self.note.refresh_from_db()
@@ -87,7 +93,7 @@ class TestNoteEditDelete(TestCase):
         self.assertEqual(self.note.slug, self.form_data['slug'])
 
     def test_other_user_cant_edit_note(self):
-        url = reverse('notes:edit', args=self.args)
+        url = reverse(NOTES_EDIT, args=self.args)
         response = self.reader_client.post(url, self.form_data)
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         note = Note.objects.get(pk=self.note.pk)
@@ -96,19 +102,19 @@ class TestNoteEditDelete(TestCase):
         self.assertEqual(self.note.slug, note.slug)
 
     def test_author_can_delete_note(self):
-        url = reverse('notes:delete', args=self.args)
+        url = reverse(NOTES_DELETE, args=self.args)
         response = self.auth_client.post(url)
         self.assertRedirects(response, self.success_url)
         self.assertEqual(Note.objects.count(), 0)
 
     def test_other_user_cant_delete_note(self):
-        url = reverse('notes:delete', args=self.args)
+        url = reverse(NOTES_DELETE, args=self.args)
         response = self.reader_client.post(url)
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         self.assertEqual(Note.objects.count(), 1)
 
     def test_not_unique_slug(self):
-        url = reverse('notes:add')
+        url = reverse(NOTES_ADD)
         self.form_data['slug'] = self.note.slug
         response = self.auth_client.post(url, data=self.form_data)
         self.assertFormError(
